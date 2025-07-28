@@ -1,0 +1,10 @@
+{
+  "name": "waciq-login",
+  "version": "1.0.0",
+  "main": "api/submit.js",
+  "type": "commonjs",
+  "dependencies": {
+    "node-fetch": "^2.6.9",
+    "telegraf": "^4.12.2"
+  }
+} 
