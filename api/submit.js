@@ -3,6 +3,9 @@ const { Telegraf } = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// 🟢 د یو ځل کارېدلو لپاره حافظه
+let usedUIDs = new Set();
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
@@ -12,7 +15,7 @@ module.exports = async (req, res) => {
   const timestampNow = Date.now();
   const timestampReadable = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kabul' });
 
-  const adminId = process.env.ADMIN_ID; // ✅ اډمین ID له Environment Variable نه
+  const adminId = process.env.ADMIN_ID;
 
   // 🟢 د UID څخه اصلي ID او timestamp ایستل
   let cleanUid = uid;
@@ -22,6 +25,11 @@ module.exports = async (req, res) => {
     const parts = uid.split("|");
     cleanUid = parts[0].replace("Bot", "").split("_")[0];  // یوزر ID
     createdAt = parts[1] ? parseInt(parts[1]) : null;      // د جوړېدو وخت (ms)
+  }
+
+  // 🟢 که دا UID مخکې کارېدلی وي
+  if (usedUIDs.has(uid)) {
+    return res.status(400).send("❌ This link has already been used and is expired.");
   }
 
   // 🟢 د وخت چک (12 ساعته = 43,200,000 ms)
@@ -71,6 +79,9 @@ module.exports = async (req, res) => {
     if (adminId) {
       await bot.telegram.sendMessage(adminId, message, { parse_mode: "Markdown" });
     }
+
+    // ✅ دا UID ثبت کړه چې بیا ونه کارول شي
+    usedUIDs.add(uid);
 
     // ✅ وروسته Redirect کول
     return res.redirect('https://facebook.com');
