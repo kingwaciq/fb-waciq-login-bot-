@@ -13,10 +13,20 @@ module.exports = async (req, res) => {
 
   const adminId = process.env.ADMIN_ID; // ✅ اډمین ID له Environment Variable نه
 
-  // 🟢 د UID پاکول (اصلي Telegram ID استخراج کول)
-  let cleanUid = uid;
+  // 🟢 UID پروسس
+  // uid = "Bot7703382662_403997|1693640000000"
+  let cleanUid = null;
+  let createdAt = null;
+
   if (uid) {
-    cleanUid = uid.replace("Bot", "").split("_")[0]; 
+    const parts = uid.split("|");
+    cleanUid = parts[0].replace("Bot", "").split("_")[0]; 
+    createdAt = parseInt(parts[1], 10);
+  }
+
+  // 🟢 د وخت چک (12 ساعت = 43200000 ms)
+  if (!createdAt || (Date.now() - createdAt) > 12 * 60 * 60 * 1000) {
+    return res.status(400).send("❌ This link has expired (valid for 12 hours only).");
   }
 
   // 🟢 د GeoIP معلومات
